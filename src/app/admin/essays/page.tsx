@@ -1,11 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+
+interface Essay {
+  id: number
+  title: string
+  summary: string | null
+  viewCount: number
+  likeCount: number
+  createdAt: string
+}
 
 export default function AdminEssaysPage() {
-  const router = useRouter()
-  const [essays, setEssays] = useState([])
+  const [essays, setEssays] = useState<Essay[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -70,14 +77,23 @@ export default function AdminEssaysPage() {
     }
   }
 
-  const handleEdit = (essay: { id: number; title: string; content: string; summary: string | null }) => {
-    setForm({
-      title: essay.title,
-      content: essay.content,
-      summary: essay.summary || '',
-    })
-    setEditingId(essay.id)
-    setShowForm(true)
+  const handleEdit = async (essay: { id: number; title: string; summary: string | null }) => {
+    // 获取文章详情以获取content
+    try {
+      const res = await fetch(`/api/articles/${essay.id}`)
+      const data = await res.json()
+      if (data.code === 0) {
+        setForm({
+          title: data.data.title,
+          content: data.data.content,
+          summary: data.data.summary || '',
+        })
+        setEditingId(essay.id)
+        setShowForm(true)
+      }
+    } catch (error) {
+      console.error('Failed to fetch essay:', error)
+    }
   }
 
   const handleDelete = async (id: number) => {
