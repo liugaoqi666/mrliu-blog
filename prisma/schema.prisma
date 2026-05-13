@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(50)
+  password  String   @db.VarChar(255)
+  email     String?  @unique @db.VarChar(100)
+  nickname  String?  @db.VarChar(50)
+  avatar    String?  @db.VarChar(255)
+  role      String   @default("user") @db.VarChar(20)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articles  Article[]
+  comments  Comment[]
+  messages  Message[]
+
+  @@map("users")
+}
+
+// 文章表
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  content     String   @db.LongText
+  summary     String?  @db.VarChar(500)
+  coverImage  String?  @db.VarChar(255)
+  type        String   @default("blog") @db.VarChar(20) // blog 或 essay
+  status      String   @default("published") @db.VarChar(20)
+  viewCount   Int      @default(0)
+  likeCount   Int      @default(0)
+  isTop       Boolean  @default(false)
+  isFeatured  Boolean  @default(false)
+  authorId    Int
+  categoryId  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author      User      @relation(fields: [authorId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])
+  tags        ArticleTag[]
+  comments    Comment[]
+
+  @@index([type])
+  @@index([status])
+  @@index([categoryId])
+  @@map("articles")
+}
+
+// 分类表
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(50)
+  slug      String    @unique @db.VarChar(50)
+  icon      String?   @db.VarChar(50)
+  sort      Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  articles  Article[]
+
+  @@map("categories")
+}
+
+// 标签表
+model Tag {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique @db.VarChar(50)
+  slug      String      @unique @db.VarChar(50)
+  createdAt DateTime    @default(now())
+
+  articles  ArticleTag[]
+
+  @@map("tags")
+}
+
+// 文章标签关联表
+model ArticleTag {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  tagId     Int
+
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, tagId])
+  @@map("article_tags")
+}
+
+// 评论表
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  nickname  String?  @db.VarChar(50)
+  email     String?  @db.VarChar(100)
+  website   String?  @db.VarChar(255)
+  ip        String?  @db.VarChar(50)
+  userAgent String?  @db.VarChar(500)
+  status    String   @default("pending") @db.VarChar(20)
+  parentId  Int?
+  articleId Int?
+  userId    Int?
+  createdAt DateTime @default(now())
+
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([articleId])
+  @@index([status])
+  @@map("comments")
+}
+
+// 留言表
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  nickname  String   @db.VarChar(50)
+  email     String?  @db.VarChar(100)
+  website   String?  @db.VarChar(255)
+  ip        String?  @db.VarChar(50)
+  userAgent String?  @db.VarChar(500)
+  device    String?  @db.VarChar(100)
+  location  String?  @db.VarChar(100)
+  status    String   @default("pending") @db.VarChar(20)
+  parentId  Int?
+  userId    Int?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id])
+  parent    Message? @relation("MessageReplies", fields: [parentId], references: [id])
+  replies   Message[] @relation("MessageReplies")
+
+  @@index([status])
+  @@map("messages")
+}
+
+// 友情链接表
+model FriendLink {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  url         String   @db.VarChar(255)
+  avatar      String?  @db.VarChar(255)
+  description String?  @db.VarChar(500)
+  email       String?  @db.VarChar(100)
+  status      String   @default("pending") @db.VarChar(20)
+  sort        Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@map("friend_links")
+}
+
+// 画廊表
+model Gallery {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  description String?  @db.Text
+  type        String   @default("photo") @db.VarChar(20) // photo 或 music
+  url         String   @db.VarChar(500)
+  thumbnail   String?  @db.VarChar(500)
+  artist      String?  @db.VarChar(100) // 音乐艺术家
+  duration    String?  @db.VarChar(20)  // 音乐时长
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@map("galleries")
+}
+
+// 站点统计表
+model SiteStats {
+  id              Int      @id @default(autoincrement())
+  date            DateTime @unique @db.Date
+  visitorCount    Int      @default(0)
+  pageViewCount   Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+  @@map("site_stats")
+}
+
+// 站点配置表
+model SiteConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @db.VarChar(100)
+  value     String?  @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("site_configs")
+}

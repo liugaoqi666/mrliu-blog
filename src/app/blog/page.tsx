@@ -1,6 +1,8 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Sidebar from '@/components/layout/Sidebar'
 
@@ -32,42 +34,24 @@ interface Article {
   }
 }
 
-interface Category {
-  id: number
-  name: string
-  slug: string
-  icon: string | null
-  _count: { articles: number }
-}
+function BlogContent() {
+  const searchParams = useSearchParams()
+  const categorySlug = searchParams.get('category')
+  const tagSlug = searchParams.get('tag')
 
-export default function HomePage() {
   const [articles, setArticles] = useState<Article[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchCategories()
-  }, [])
+    setCurrentPage(1)
+  }, [categorySlug, tagSlug])
 
   useEffect(() => {
     fetchArticles()
-  }, [selectedCategory, currentPage])
-
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch('/api/categories')
-      const data = await res.json()
-      if (data.code === 0) {
-        setCategories(data.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch categories:', error)
-    }
-  }
+  }, [categorySlug, tagSlug, currentPage])
 
   const fetchArticles = async () => {
     setLoading(true)
@@ -77,9 +61,8 @@ export default function HomePage() {
         pageSize: '10',
         type: 'blog',
       })
-      if (selectedCategory) {
-        params.append('category', selectedCategory)
-      }
+      if (categorySlug) params.append('category', categorySlug)
+      if (tagSlug) params.append('tag', tagSlug)
 
       const res = await fetch(`/api/articles?${params}`)
       const data = await res.json()
@@ -104,77 +87,21 @@ export default function HomePage() {
     })
   }
 
-  const totalArticleCount = categories.reduce((sum, cat) => sum + cat._count.articles, 0)
+  const getPageTitle = () => {
+    if (categorySlug) return `分类：${categorySlug}`
+    if (tagSlug) return `标签：${tagSlug}`
+    return '博客文章'
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl font-bold mb-4">Mr.Liu</h1>
-          <p className="text-xl text-blue-100 mb-2">
-            以开发视角，编码的设计哲学：从传输到安全
-          </p>
-          <p className="text-lg text-blue-200">
-            打穿自制靶场：Web漏洞原理全景复现
-          </p>
-          <div className="mt-6 flex space-x-4">
-            <Link
-              href="/blog"
-              className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-            >
-              阅读文章
-            </Link>
-            <Link
-              href="/about"
-              className="px-6 py-3 border border-white text-white rounded-lg font-medium hover:bg-white/10 transition-colors"
-            >
-              了解更多
-            </Link>
-          </div>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">{getPageTitle()}</h1>
+        <p className="mt-2 text-gray-600">共 {total} 篇文章</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Content */}
         <div className="flex-1">
-          {/* Category Filter */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => {
-                  setSelectedCategory('')
-                  setCurrentPage(1)
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  !selectedCategory
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                全部文章 {totalArticleCount}
-              </button>
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => {
-                    setSelectedCategory(category.slug)
-                    setCurrentPage(1)
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedCategory === category.slug
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {category.icon && <span className="mr-1">{category.icon}</span>}
-                  {category.name} {category._count.articles}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Article List */}
           {loading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -207,31 +134,21 @@ export default function HomePage() {
                         {article.summary}
                       </p>
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                        <span className="flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {formatDate(article.createdAt)}
-                        </span>
+                        <span>{formatDate(article.createdAt)}</span>
                         <span className="flex items-center">
                           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
-                          {article.viewCount}
+                          {article.viewCount} 阅读
                         </span>
                         <span className="flex items-center">
                           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
-                          {article.likeCount}
+                          {article.likeCount} 点赞
                         </span>
-                        <span className="flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                          </svg>
-                          {article._count.comments}
-                        </span>
+                        <span>{article._count.comments} 评论</span>
                         {article.category && (
                           <Link
                             href={`/blog?category=${article.category.slug}`}
@@ -270,14 +187,13 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-8 flex justify-center">
               <nav className="flex items-center space-x-2">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                 >
                   上一页
                 </button>
@@ -297,7 +213,7 @@ export default function HomePage() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                 >
                   下一页
                 </button>
@@ -306,11 +222,33 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Sidebar */}
         <div className="w-full lg:w-80 flex-shrink-0">
           <Sidebar />
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BlogPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <BlogContent />
+    </Suspense>
   )
 }
