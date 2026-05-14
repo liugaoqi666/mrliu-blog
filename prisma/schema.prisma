@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -30,10 +30,10 @@ model User {
 model Article {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(200)
-  content     String   @db.LongText
+  content     String   @db.Text
   summary     String?  @db.VarChar(500)
   coverImage  String?  @db.VarChar(255)
-  type        String   @default("blog") @db.VarChar(20) // blog 或 essay
+  type        String   @default("blog") @db.VarChar(20)
   status      String   @default("published") @db.VarChar(20)
   viewCount   Int      @default(0)
   likeCount   Int      @default(0)
@@ -165,11 +165,11 @@ model Gallery {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(200)
   description String?  @db.Text
-  type        String   @default("photo") @db.VarChar(20) // photo 或 music
+  type        String   @default("photo") @db.VarChar(20)
   url         String   @db.VarChar(500)
   thumbnail   String?  @db.VarChar(500)
-  artist      String?  @db.VarChar(100) // 音乐艺术家
-  duration    String?  @db.VarChar(20)  // 音乐时长
+  artist      String?  @db.VarChar(100)
+  duration    String?  @db.VarChar(20)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 
