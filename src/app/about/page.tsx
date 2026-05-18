@@ -39,7 +39,7 @@ export default function AboutPage() {
                 </tr>
                 <tr className="border-b border-gray-200">
                   <td className="py-3 font-medium text-gray-700">网站头像URL</td>
-                  <td className="py-3 text-gray-500">（待上线后补充）</td>
+                  <td className="py-3 text-gray-500">https://raw.githubusercontent.com/liugaoqi666/mrliu-blog/main/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg</td>
                 </tr>
                 <tr>
                   <td className="py-3 font-medium text-gray-700">网站简介</td>
