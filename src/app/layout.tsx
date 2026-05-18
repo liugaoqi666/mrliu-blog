@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SocialLinks from "@/components/layout/SocialLinks";
 import TrackView from "@/components/TrackView";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-gray-50">
         <TrackView />
+        <MusicPlayer />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
