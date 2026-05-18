@@ -24,9 +24,15 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (data.code === 0) {
+        // 保存到 localStorage
         localStorage.setItem('token', data.data.token)
         localStorage.setItem('user', JSON.stringify(data.data.user))
-        router.push('/')
+        
+        // 设置 cookie（7天有效）
+        const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString()
+        document.cookie = `token=${data.data.token}; expires=${expires}; path=/; SameSite=Lax`
+        
+        router.push('/admin')
       } else {
         setError(data.message)
       }
