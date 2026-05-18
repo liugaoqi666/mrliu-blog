@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         ip,
         userAgent,
         parentId: parentId || null,
-        status: 'pending', // 需要审核
+        status: 'approved', // 自动通过
       },
     })
 
