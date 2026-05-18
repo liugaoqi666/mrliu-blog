@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 interface GalleryItem {
@@ -16,10 +16,17 @@ export default function MusicGalleryPage() {
   const [music, setMusic] = useState<GalleryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [playing, setPlaying] = useState<number | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     fetchMusic()
   }, [])
+
+  useEffect(() => {
+    if (playing !== null && audioRef.current) {
+      audioRef.current.play().catch(() => {})
+    }
+  }, [playing])
 
   const fetchMusic = async () => {
     setLoading(true)
@@ -36,6 +43,15 @@ export default function MusicGalleryPage() {
     }
   }
 
+  const handlePlay = (item: GalleryItem) => {
+    if (playing === item.id) {
+      audioRef.current?.pause()
+      setPlaying(null)
+    } else {
+      setPlaying(item.id)
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
@@ -46,6 +62,13 @@ export default function MusicGalleryPage() {
         <h1 className="text-3xl font-bold text-gray-900">音乐专区</h1>
         <p className="text-gray-600 mt-2">鼓时鼓刻 · 共{music.length}首</p>
       </div>
+
+      {/* Audio Player */}
+      {playing !== null && (
+        <div className="mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-white">
+          <audio ref={audioRef} src={music.find(m => m.id === playing)?.url} controls className="w-full" />
+        </div>
+      )}
 
       {/* Music List */}
       {loading ? (
@@ -74,7 +97,7 @@ export default function MusicGalleryPage() {
               className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow cursor-pointer ${
                 playing === item.id ? 'ring-2 ring-purple-500' : ''
               }`}
-              onClick={() => setPlaying(playing === item.id ? null : item.id)}
+              onClick={() => handlePlay(item)}
             >
               <div className="flex items-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center text-white flex-shrink-0">
