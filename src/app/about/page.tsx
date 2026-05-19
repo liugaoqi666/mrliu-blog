@@ -3,6 +3,13 @@ export default function AboutPage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="text-center mb-12">
+        <div className="mb-6">
+          <img 
+            src="https://raw.githubusercontent.com/liugaoqi666/mrliu-blog/main/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg" 
+            alt="Mr.Liu" 
+            className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+          />
+        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">ABOUT THIS SITE · 关于本站</h1>
         <p className="text-xl text-gray-600">欢迎光临我的小破站，感谢你的到来</p>
       </div>
