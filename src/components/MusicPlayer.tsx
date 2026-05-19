@@ -80,10 +80,22 @@ export default function MusicPlayer() {
         onEnded={handleEnded}
       />
       
-      <div className="fixed top-4 right-4 z-50">
+      <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 9999 }}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110"
+          style={{ 
+            width: '48px', 
+            height: '48px', 
+            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            color: 'white'
+          }}
           aria-label="音乐播放器"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,16 +104,26 @@ export default function MusicPlayer() {
         </button>
 
         {isOpen && (
-          <div className="absolute top-12 right-0 bg-white rounded-xl shadow-xl border border-gray-100 p-4 w-72 animate-fade-in">
-            <div className="text-center mb-3">
-              <p className="font-semibold text-gray-900 truncate">{currentSong.title}</p>
-              <p className="text-sm text-gray-500 truncate">{currentSong.artist}</p>
+          <div style={{ 
+            position: 'absolute', 
+            top: '60px', 
+            right: 0, 
+            background: 'white', 
+            borderRadius: '12px', 
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+            border: '1px solid #e5e7eb', 
+            padding: '16px', 
+            width: '288px' 
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+              <p style={{ fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentSong.title}</p>
+              <p style={{ fontSize: '14px', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentSong.artist}</p>
             </div>
             
-            <div className="flex items-center justify-center gap-4">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
               <button
                 onClick={prevSong}
-                className="p-2 text-gray-600 hover:text-purple-600 transition-colors"
+                style={{ padding: '8px', color: '#4b5563', background: 'none', border: 'none', cursor: 'pointer' }}
                 aria-label="上一首"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +133,14 @@ export default function MusicPlayer() {
               
               <button
                 onClick={togglePlay}
-                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all"
+                style={{ 
+                  padding: '12px', 
+                  background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', 
+                  borderRadius: '50%', 
+                  color: 'white', 
+                  border: 'none', 
+                  cursor: 'pointer' 
+                }}
                 aria-label={isPlaying ? '暂停' : '播放'}
               >
                 {isPlaying ? (
@@ -127,7 +156,7 @@ export default function MusicPlayer() {
               
               <button
                 onClick={nextSong}
-                className="p-2 text-gray-600 hover:text-purple-600 transition-colors"
+                style={{ padding: '8px', color: '#4b5563', background: 'none', border: 'none', cursor: 'pointer' }}
                 aria-label="下一首"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +165,7 @@ export default function MusicPlayer() {
               </button>
             </div>
 
-            <div className="mt-3 text-center text-xs text-gray-400">
+            <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '12px', color: '#9ca3af' }}>
               {currentIndex + 1} / {songs.length}
             </div>
           </div>
