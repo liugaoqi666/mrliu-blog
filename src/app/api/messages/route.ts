@@ -9,7 +9,11 @@ export async function GET(request: NextRequest) {
     const { page, pageSize, skip } = getPagination(searchParams)
     const status = searchParams.get('status') || 'approved'
 
-    const where = { status, parentId: null }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = { parentId: null }
+    if (status !== 'all') {
+      where.status = status
+    }
 
     const [messages, total] = await Promise.all([
       prisma.message.findMany({
