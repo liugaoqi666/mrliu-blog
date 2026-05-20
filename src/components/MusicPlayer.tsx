@@ -53,13 +53,13 @@ export default function MusicPlayer() {
   }
 
   const prevSong = () => {
-    if (songs.length === 0) return
+    if (songs.length <= 1) return
     setCurrentIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1))
     setIsPlaying(true)
   }
 
   const nextSong = () => {
-    if (songs.length === 0) return
+    if (songs.length <= 1) return
     setCurrentIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
     setIsPlaying(true)
   }
@@ -78,55 +78,101 @@ export default function MusicPlayer() {
         ref={audioRef}
         src={currentSong.url}
         onEnded={handleEnded}
+        preload="auto"
       />
       
-      <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 9999 }}>
+      <div style={{ 
+        position: 'fixed', 
+        bottom: '100px', 
+        right: '20px', 
+        zIndex: 9999 
+      }}>
+        {/* 主按钮 */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{ 
-            width: '48px', 
-            height: '48px', 
-            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+            width: '56px', 
+            height: '56px', 
+            background: isPlaying 
+              ? 'linear-gradient(135deg, #f59e0b, #ef4444)' 
+              : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
             borderRadius: '50%',
-            border: 'none',
+            border: '3px solid white',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            color: 'white'
+            boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+            color: 'white',
+            transition: 'all 0.3s ease',
+            animation: isPlaying ? 'pulse 2s infinite' : 'none'
           }}
           aria-label="音乐播放器"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-          </svg>
+          {isPlaying ? (
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            </svg>
+          ) : (
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+            </svg>
+          )}
         </button>
 
+        {/* 播放面板 */}
         {isOpen && (
           <div style={{ 
             position: 'absolute', 
-            top: '60px', 
+            bottom: '70px', 
             right: 0, 
             background: 'white', 
-            borderRadius: '12px', 
-            boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+            borderRadius: '16px', 
+            boxShadow: '0 10px 40px rgba(0,0,0,0.15)', 
             border: '1px solid #e5e7eb', 
-            padding: '16px', 
-            width: '288px' 
+            padding: '20px', 
+            width: '300px',
+            animation: 'fadeIn 0.3s ease'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-              <p style={{ fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentSong.title}</p>
-              <p style={{ fontSize: '14px', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentSong.artist}</p>
+            {/* 歌曲信息 */}
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                borderRadius: '50%',
+                margin: '0 auto 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                animation: isPlaying ? 'spin 3s linear infinite' : 'none'
+              }}>
+                <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z" />
+                </svg>
+              </div>
+              <p style={{ fontWeight: 600, color: '#111827', fontSize: '16px', marginBottom: '4px' }}>{currentSong.title}</p>
+              <p style={{ fontSize: '14px', color: '#6b7280' }}>{currentSong.artist}</p>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+            {/* 控制按钮 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
               <button
                 onClick={prevSong}
-                style={{ padding: '8px', color: '#4b5563', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ 
+                  padding: '10px', 
+                  color: '#6b7280', 
+                  background: '#f3f4f6', 
+                  border: 'none', 
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
                 aria-label="上一首"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -134,21 +180,22 @@ export default function MusicPlayer() {
               <button
                 onClick={togglePlay}
                 style={{ 
-                  padding: '12px', 
+                  padding: '14px', 
                   background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', 
                   borderRadius: '50%', 
                   color: 'white', 
                   border: 'none', 
-                  cursor: 'pointer' 
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)'
                 }}
                 aria-label={isPlaying ? '暂停' : '播放'}
               >
                 {isPlaying ? (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
@@ -156,21 +203,69 @@ export default function MusicPlayer() {
               
               <button
                 onClick={nextSong}
-                style={{ padding: '8px', color: '#4b5563', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ 
+                  padding: '10px', 
+                  color: '#6b7280', 
+                  background: '#f3f4f6', 
+                  border: 'none', 
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
                 aria-label="下一首"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '12px', color: '#9ca3af' }}>
-              {currentIndex + 1} / {songs.length}
+            {/* 歌曲列表 */}
+            <div style={{ marginTop: '16px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
+              <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '8px' }}>播放列表 ({songs.length}首)</p>
+              {songs.map((song, index) => (
+                <div 
+                  key={song.id}
+                  onClick={() => { setCurrentIndex(index); setIsPlaying(true) }}
+                  style={{
+                    padding: '8px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: currentIndex === index ? '#f3e8ff' : 'transparent',
+                    marginBottom: '4px'
+                  }}
+                >
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: currentIndex === index ? '#7c3aed' : '#374151',
+                    fontWeight: currentIndex === index ? 600 : 400
+                  }}>
+                    {index + 1}. {song.title}
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#9ca3af' }}>{song.artist}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </>
   )
 }
