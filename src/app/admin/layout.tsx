@@ -83,6 +83,12 @@ export default function AdminLayout({
               留言管理
             </Link>
             <Link
+              href="/admin/comments"
+              className="block px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+            >
+              评论管理
+            </Link>
+            <Link
               href="/admin/friends"
               className="block px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
             >

@@ -1,37 +1,68 @@
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
-import { apiSuccess, apiError, getClientIP, getUserAgent } from '@/lib/utils'
+import { apiSuccess, apiError, getPagination } from '@/lib/utils'
 
-// 发表评论
-export async function POST(request: NextRequest) {
+// 获取评论列表
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { content, articleId, nickname, email, website, parentId } = body
+    const searchParams = request.nextUrl.searchParams
+    const { page, pageSize, skip } = getPagination(searchParams)
+    const status = searchParams.get('status') || 'approved'
 
-    if (!content) {
-      return apiError('评论内容不能为空')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = { parentId: null }
+    if (status !== 'all') {
+      where.status = status
     }
 
-    const ip = getClientIP(request)
-    const userAgent = getUserAgent(request)
+    const [comments, total] = await Promise.all([
+      prisma.comment.findMany({
+        where,
+        include: {
+          article: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              username: true,
+              nickname: true,
+              avatar: true,
+            },
+          },
+          replies: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  nickname: true,
+                  avatar: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      prisma.comment.count({ where }),
+    ])
 
-    const comment = await prisma.comment.create({
-      data: {
-        content,
-        articleId: articleId || null,
-        nickname: nickname || '匿名用户',
-        email: email || null,
-        website: website || null,
-        ip,
-        userAgent,
-        parentId: parentId || null,
-        status: 'approved', // 自动通过
-      },
+    return apiSuccess({
+      items: comments,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
     })
-
-    return apiSuccess(comment, '评论已提交，等待审核')
   } catch (error) {
-    console.error('发表评论失败:', error)
-    return apiError('发表评论失败', 500)
+    console.error('获取评论列表失败:', error)
+    return apiError('获取评论列表失败', 500)
   }
 }
