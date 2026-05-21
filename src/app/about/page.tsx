@@ -13,7 +13,7 @@ export default function AboutPage() {
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <div className="mb-8">
             <img 
-              src="https://raw.githubusercontent.com/liugaoqi666/mrliu-blog/main/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg" 
+              src="https://cdn.jsdelivr.net/gh/liugaoqi666/mrliu-blog/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg" 
               alt="Mr.Liu" 
               className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white dark:border-gray-800 shadow-xl"
             />
@@ -64,7 +64,7 @@ export default function AboutPage() {
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center py-3 border-b border-gray-200 dark:border-gray-700">
                 <span className="font-medium text-gray-700 dark:text-gray-300 sm:w-32 mb-1 sm:mb-0">网站头像</span>
-                <span className="text-gray-500 dark:text-gray-400 text-sm break-all">https://raw.githubusercontent.com/liugaoqi666/mrliu-blog/main/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm break-all">https://cdn.jsdelivr.net/gh/liugaoqi666/mrliu-blog/public/b_4ffcf0ba9aa55efb99b4180ee1b6190e.jpg</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center py-3">
                 <span className="font-medium text-gray-700 dark:text-gray-300 sm:w-32 mb-1 sm:mb-0">网站简介</span>
